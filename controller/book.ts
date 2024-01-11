@@ -23,7 +23,7 @@ export const getAllBooks = async (req: Request, res: Response) => {
 // get one book
 export const searchBook = async (req: Request, res: Response) => {
   try {
-    const book = await Book.findOne({
+    const book: any = await Book.findOne({
       where: {
         [Op.or]: [
           { title: { [Op.iLike]: `%${req.query.title}%` } },
@@ -32,7 +32,12 @@ export const searchBook = async (req: Request, res: Response) => {
         ],
       },
     });
-    res.status(200).json({ record: book });
+
+    if (book) {
+      res.status(200).json({ record: book });
+    } else {
+      res.status(404).json({ message: "no books " });
+    }
   } catch (error) {
     res.status(500).json({ message: "please enter right query", error: error });
   }
@@ -42,7 +47,7 @@ export const deleteBook = async (req: Request, res: Response) => {
   try {
     await Book.destroy({
       where: {
-        ISBN: req.params.id,
+        id: req.params.id,
       },
     });
     res.status(200).json({ message: "the book deleted successfully" });
@@ -55,10 +60,11 @@ export const updateBook = async (req: Request, res: Response) => {
   try {
     const [rowsAffected, [updatedBook]] = await Book.update(req.body, {
       where: {
-        bookID: req.params.id,
+        id: req.params.id,
       },
       returning: true,
     });
+
     if (rowsAffected > 0) {
       res.status(200).json({
         message: "Book updated successfully",

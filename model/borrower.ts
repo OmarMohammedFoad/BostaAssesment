@@ -1,6 +1,5 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "./index";
-import Book from "./book";
 
 class Borrower extends Model {
   public borrowerID!: number;
@@ -11,13 +10,11 @@ class Borrower extends Model {
 
 export default Borrower.init(
   {
-    borrowerID: {
+    borrowerId: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
       allowNull: false,
-      autoIncrement: true,
+      primaryKey: true,
     },
-
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -26,7 +23,7 @@ export default Borrower.init(
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true, // Assuming email should be unique
+      unique: true,
     },
 
     registeredDate: {
@@ -39,3 +36,5 @@ export default Borrower.init(
     modelName: "Borrower",
   }
 );
+
+sequelize.sync();

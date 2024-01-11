@@ -2,40 +2,83 @@ import borrowedbooks from "../model/borrowedbooks";
 import { Op, where } from "sequelize";
 
 import { Request, Response } from "express";
+import borrower from "../model/borrower";
+import Books from "../model/book";
 
 export const checkoutBook = async (req: Request, res: Response) => {
   try {
-    const { borrowedID, ISBN, returnDate } = req.body;
-    const borrowedBook = await borrowedbooks.create({
-      borrowedID: borrowedID,
-      ISBN: ISBN,
-      checkoutDate: new Date(),
-      returnDate: returnDate,
-    });
+    // user book
+    // check if there is user with this id or not
+    // check if there is book with this id or not
+    /**
+     *
+     */
+    const { borrowerID, bookid, dueDate } = req.body;
+    const userBorrower = await borrower.findByPk(borrowerID);
 
-    res
-      .send(200)
-      .json({ message: "checkout created successfulyy", borrowedBook });
+    if (!userBorrower) {
+      res.status(400).json({ message: "userBorrower is not found" });
+    } else {
+      const book: any = await Books.findByPk(bookid);
+      if (!book || book.available_quantity <= 0) {
+        res
+          .status(400)
+          .json({ message: "book is not availavle for checkout !" });
+      } else {
+        const created = await borrowedbooks.create({
+          bookId: bookid,
+          borrowerId: borrowerID,
+          checkoutDate: new Date(),
+          returnDate: null,
+          dueDate: dueDate,
+        });
+
+        if (created) {
+          await Books.update(
+            { available_quantity: book.available_quantity - 1 },
+            {
+              where: { bookId: bookid },
+            }
+          );
+        }
+
+        res
+          .status(200)
+          .json({ message: "checkout created successfulyy", created });
+      }
+    }
   } catch (error) {
-    res.send(500).json({ message: "error creating checkout", error });
+    console.error("Error during checkout:", error);
+    res.status(500).json({ message: "error creating checkout" });
   }
 };
 
 export const listBooksBorrowerHas = async (req: Request, res: Response) => {
   try {
     const list = await borrowedbooks.findAll({
-      where: {
-        returnDate: null,
-        borrowerID: req.params.id,
-      },
+      where: { borrowerId: req.params.id },
+      include: [
+        {
+          model: Books,
+          attributes: [
+            "title",
+            "Author",
+            "ISBN",
+            "available_quantity",
+            "ShelfLocation",
+          ],
+        },
+      ],
     });
-    if (list.length === 0) {
+    if (!list) {
       return res
         .status(404)
         .json({ message: "No books currently borrowed by the borrower" });
     }
     res.status(200).json({ message: "the returned books", list });
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({ message: "internal error", error });
   }
 };
@@ -58,28 +101,54 @@ export const listBooksOverDueAndDue = async (req: Request, res: Response) => {
 
 export const returnBook = async (req: Request, res: Response) => {
   try {
-    const { borrowerID, ISBN } = req.params;
-    const [numUpdated, return_book] = await borrowedbooks.update(
-      { returnDate: new Date() },
-      {
-        where: {
-          borrowerID: borrowerID,
-          ISBN: ISBN,
-          returnDate: null,
-        },
-        returning: true,
-      }
-    );
-    if (numUpdated === 0) {
-      return res
-        .status(404)
-        .json({ message: "Borrowed book not found or already returned" });
-    }
+    // give the id of book and borrower
+    // check if the borrower has the book or not
+    // get the borrower and make the checkoutretrun data new date
+    // available quantity increased by one
+    //
+    const { bookId, borrowerId } = req.body;
 
-    res.status(200).json({
-      message: "Book returned successfully",
-      returnedBook: return_book[0],
+    const borrowingRecord: any = await borrowedbooks.findOne({
+      where: {
+        bookId: bookId,
+        borrowerId: borrowerId,
+        returnDate: null,
+      },
     });
+    if (!borrowingRecord) {
+      return res.status(400).json({
+        error: "Book is not currently borrowed by the specified borrower",
+      });
+    } else {
+      const [numUpdated, return_book] = await borrowedbooks.update(
+        { returnDate: new Date() },
+        {
+          where: {
+            borrowerId: borrowingRecord.dataValues.borrowerId,
+            bookId: bookId,
+          },
+          returning: true,
+        }
+      );
+
+      const book: any = await Books.findByPk(bookId);
+      console.log(`book.available_quantity`, book.available_quantity);
+
+      await Books.update(
+        { available_quantity: book.available_quantity + 1 },
+        { where: { bookId: bookId } }
+      );
+      if (numUpdated === 0) {
+        return res
+          .status(404)
+          .json({ message: "Borrowed book not found or already returned" });
+      }
+
+      res.status(200).json({
+        message: "Book returned successfully",
+        returnedBook: return_book[0],
+      });
+    }
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ message: "Internal server error", error });

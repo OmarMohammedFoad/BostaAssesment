@@ -9,6 +9,8 @@ export const createBorrower = async (req: Request, res: Response) => {
       .status(200)
       .json({ message: "Borrow has been created", record: borrower });
   } catch (error) {
+    // console.log(error);
+
     res.status(500).json({ message: "there is error", error: error });
   }
 };
@@ -65,11 +67,13 @@ export const deleteBorrower = async (req: Request, res: Response) => {
   try {
     await Borrower.destroy({
       where: {
-        BorrowID: req.params.id,
+        borrowerID: req.params.id,
       },
     });
     res.status(200).json({ message: "the Borrower deleted successfully" });
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({ message: "there is error", error: error });
   }
 };

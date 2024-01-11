@@ -1,7 +1,6 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "./index";
-class Book extends Model {
-  public bookID!: number;
+class Books extends Model {
   public title!: string;
   public Author!: string;
   public ISBN!: string;
@@ -9,8 +8,13 @@ class Book extends Model {
   public ShelfLocation!: string;
 }
 
-export default Book.init(
+Books.init(
   {
+    bookId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+    },
     title: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -21,10 +25,9 @@ export default Book.init(
     },
     ISBN: {
       type: DataTypes.STRING,
-      primaryKey: true,
       allowNull: false,
     },
-    ISBNavailable_quantity: {
+    available_quantity: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -38,3 +41,4 @@ export default Book.init(
     modelName: "Book",
   }
 );
+export default Books;

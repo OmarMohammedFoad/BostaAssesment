@@ -11,27 +11,21 @@ class borrowedBooks extends Model {
 
 export default borrowedBooks.init(
   {
-    borrowingID: {
+    id: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       primaryKey: true,
       autoIncrement: true,
-      allowNull: false,
     },
-    borrowerID: {
+    bookId: {
       type: DataTypes.INTEGER,
-      references: {
-        model: "Borrower",
-        key: "borrowerID",
-      },
       allowNull: false,
+      primaryKey: true,
     },
-    ISBN: {
+    borrowerId: {
       type: DataTypes.INTEGER,
-      references: {
-        model: "Book",
-        key: "ISBN",
-      },
       allowNull: false,
+      primaryKey: true,
     },
     checkoutDate: {
       type: DataTypes.DATE,
@@ -43,11 +37,13 @@ export default borrowedBooks.init(
     },
     returnDate: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
     },
   },
   {
     sequelize,
-    modelName: "bookProccess",
+    timestamps: false,
+    modelName: "bookProccesses",
   }
 );
+sequelize.sync();
