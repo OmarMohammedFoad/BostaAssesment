@@ -8,6 +8,8 @@ export const createBook = async (req: Request, res: Response) => {
     const book = await Book.create(req.body);
     res.status(200).json({ message: "book has been created", record: book });
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({ message: "there is error", error: error });
   }
 };

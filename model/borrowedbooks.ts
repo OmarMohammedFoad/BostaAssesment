@@ -17,16 +17,7 @@ export default borrowedBooks.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    bookId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-    },
-    borrowerId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-    },
+
     checkoutDate: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -46,4 +37,3 @@ export default borrowedBooks.init(
     modelName: "bookProccesses",
   }
 );
-sequelize.sync();

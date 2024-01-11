@@ -26,8 +26,8 @@ export const checkoutBook = async (req: Request, res: Response) => {
           .json({ message: "book is not availavle for checkout !" });
       } else {
         const created = await borrowedbooks.create({
-          bookId: bookid,
-          borrowerId: borrowerID,
+          BookBookId: bookid,
+          BorrowerBorrowerId: borrowerID,
           checkoutDate: new Date(),
           returnDate: null,
           dueDate: dueDate,
@@ -55,21 +55,11 @@ export const checkoutBook = async (req: Request, res: Response) => {
 
 export const listBooksBorrowerHas = async (req: Request, res: Response) => {
   try {
-    const list = await borrowedbooks.findAll({
+    const list: any = await borrower.findAll({
       where: { borrowerId: req.params.id },
-      include: [
-        {
-          model: Books,
-          attributes: [
-            "title",
-            "Author",
-            "ISBN",
-            "available_quantity",
-            "ShelfLocation",
-          ],
-        },
-      ],
+      include: Books,
     });
+
     if (!list) {
       return res
         .status(404)
@@ -82,6 +72,7 @@ export const listBooksBorrowerHas = async (req: Request, res: Response) => {
     res.status(500).json({ message: "internal error", error });
   }
 };
+
 export const listBooksOverDueAndDue = async (req: Request, res: Response) => {
   try {
     const list = await borrowedbooks.findAll({
@@ -107,11 +98,12 @@ export const returnBook = async (req: Request, res: Response) => {
     // available quantity increased by one
     //
     const { bookId, borrowerId } = req.body;
+    console.log(bookId, borrowerId);
 
     const borrowingRecord: any = await borrowedbooks.findOne({
       where: {
-        bookId: bookId,
-        borrowerId: borrowerId,
+        BookBookId: bookId,
+        BorrowerBorrowerId: borrowerId,
         returnDate: null,
       },
     });
@@ -120,12 +112,14 @@ export const returnBook = async (req: Request, res: Response) => {
         error: "Book is not currently borrowed by the specified borrower",
       });
     } else {
+      console.log(`borrowingRecord`, borrowingRecord);
+
       const [numUpdated, return_book] = await borrowedbooks.update(
         { returnDate: new Date() },
         {
           where: {
-            borrowerId: borrowingRecord.dataValues.borrowerId,
-            bookId: bookId,
+            BorrowerBorrowerId: borrowingRecord.dataValues.BorrowerBorrowerId,
+            BookBookId: bookId,
           },
           returning: true,
         }

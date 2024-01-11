@@ -14,6 +14,7 @@ export default Borrower.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
+      autoIncrement: true,
     },
     name: {
       type: DataTypes.STRING,
@@ -36,5 +37,3 @@ export default Borrower.init(
     modelName: "Borrower",
   }
 );
-
-sequelize.sync();
