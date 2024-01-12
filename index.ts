@@ -23,9 +23,7 @@ sequelize
   .sync()
   .then(() => {
     app.listen(PORT, () => {
-      console.log("sdsadsadsadsad");
-
-      console.log(`Server rasdasdsa unning on ${PORT}.`);
+      console.log(`Server running on ${PORT}.`);
     });
   })
   .catch((error) => {
