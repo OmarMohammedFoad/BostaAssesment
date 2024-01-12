@@ -374,7 +374,11 @@ Response:
 }
 ```
 
-## docker image
+## docker container :
 
-**the url**
-https://hub.docker.com/repository/docker/omarfoaudx/bosta_library_management_system/general
+To run the app container
+you will find the docker-compose.yml
+and the dockerFile
+
+**run this command**
+docker compose up -d
