@@ -81,6 +81,8 @@ export const listBooksOverDueAndDue = async (req: Request, res: Response) => {
         dueDate: { [Op.lt]: new Date() },
       },
     });
+    console.log(list);
+
     if (list.length === 0) {
       return res.status(404).json({ message: "No books currently " });
     }
@@ -97,7 +99,7 @@ export const returnBook = async (req: Request, res: Response) => {
     // get the borrower and make the checkoutretrun data new date
     // available quantity increased by one
     //
-    const { bookId, borrowerId } = req.body;
+    const { bookId, borrowerId } = req.query;
     console.log(bookId, borrowerId);
 
     const borrowingRecord: any = await borrowedbooks.findOne({
@@ -112,8 +114,6 @@ export const returnBook = async (req: Request, res: Response) => {
         error: "Book is not currently borrowed by the specified borrower",
       });
     } else {
-      console.log(`borrowingRecord`, borrowingRecord);
-
       const [numUpdated, return_book] = await borrowedbooks.update(
         { returnDate: new Date() },
         {
@@ -125,8 +125,7 @@ export const returnBook = async (req: Request, res: Response) => {
         }
       );
 
-      const book: any = await Books.findByPk(bookId);
-      console.log(`book.available_quantity`, book.available_quantity);
+      const book: any = await Books.findOne({ where: { bookId: bookId } });
 
       await Books.update(
         { available_quantity: book.available_quantity + 1 },
@@ -146,5 +145,39 @@ export const returnBook = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ message: "Internal server error", error });
+  }
+};
+export const listOverdueBorrowsLastMonth = async (
+  req: Request,
+  res: Response
+) => {
+  const currentDate: any = new Date();
+  console.log(currentDate);
+
+  const LastMonthStartDate = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() - 1,
+    1
+  );
+  console.log(LastMonthStartDate);
+
+  const LastMonthEndDate: any = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    0
+  );
+  console.log(LastMonthEndDate);
+
+  try {
+    const overdueBorrows: any = await borrowedbooks.findAll({
+      where: {
+        returnDate: null,
+        dueDate: { [Op.between]: [LastMonthStartDate, LastMonthEndDate] },
+      },
+    });
+
+    res.status(200).json({ message: overdueBorrows });
+  } catch (error) {
+    res.status(500).json({ message: error });
   }
 };

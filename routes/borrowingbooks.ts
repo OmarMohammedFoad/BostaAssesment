@@ -3,6 +3,7 @@ import {
   checkoutBook,
   listBooksBorrowerHas,
   listBooksOverDueAndDue,
+  listOverdueBorrowsLastMonth,
   returnBook,
 } from "../controller/borrowedbooks";
 
@@ -12,4 +13,5 @@ router.post("/create", checkoutBook);
 router.get("/list/:id", listBooksBorrowerHas);
 router.post("/returnbook", returnBook);
 router.post("/listBooksOverDueAndDue", listBooksOverDueAndDue);
+router.post("/listOverdueBorrowsLastMonth", listOverdueBorrowsLastMonth);
 export default router;

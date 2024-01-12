@@ -10,7 +10,7 @@ const router = Router();
 
 router.get("/list", getAllBorrowers);
 router.post("/create", createBorrower);
-router.put("/update/:d", updateBorrower);
+router.put("/update/:id", updateBorrower);
 router.delete("/delete/:id", deleteBorrower);
 
 export default router;

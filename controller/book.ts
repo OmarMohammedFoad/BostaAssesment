@@ -49,7 +49,7 @@ export const deleteBook = async (req: Request, res: Response) => {
   try {
     await Book.destroy({
       where: {
-        id: req.params.id,
+        bookId: req.params.id,
       },
     });
     res.status(200).json({ message: "the book deleted successfully" });
@@ -62,7 +62,7 @@ export const updateBook = async (req: Request, res: Response) => {
   try {
     const [rowsAffected, [updatedBook]] = await Book.update(req.body, {
       where: {
-        id: req.params.id,
+        bookId: req.params.id,
       },
       returning: true,
     });

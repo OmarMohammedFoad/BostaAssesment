@@ -1,0 +1,17 @@
+version: "3"
+services: 
+  db:
+    image: postgres
+    container_name: postgres
+    environment:
+      POSTGRES_PASSWORD: omar
+      POSTGRES_USER: postgres
+      POSTGRES_DB: Library_Management_System
+
+  app:
+    build: .
+    container_name: app
+    depends_on:
+      - db
+    ports:
+      - 5000:5000
