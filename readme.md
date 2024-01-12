@@ -381,4 +381,5 @@ you will find the docker-compose.yml
 and the dockerFile
 
 **run this command**
+docker compose build
 docker compose up -d
